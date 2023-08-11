@@ -1,0 +1,36 @@
+#include "lve_pipeline.hpp"
+
+#include <fstream>
+#include <stdexcept>
+
+namespace lve {
+
+LvePipeline::LvePipeline(const std::string& vertexFilepath, std::string& fragmentFilepath) {
+  this->create_graphics_pipeline(vertexFilepath, fragmentFilepath);
+}
+
+std::vector<char> 
+LvePipeline::read_file(const std::string& filepath) {
+  std::ifstream file{filepath, std::ios::ate | std::ios::binary};
+
+  if (!file.is_open()) {
+    throw std::runtime_error("failed to open file: " + filepath);
+  }
+
+  size_t file_size = static_cast<size_t>(file.tellg());
+  std::vector<char> buffer(file_size);
+
+  file.seekg(0);
+  file.read(buffer.data(), file_size);
+  file.close();
+
+  return buffer;
+}
+
+void
+LvePipeline::create_graphics_pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
+  auto vertCode = this->read_file(vertexFilepath);
+  auto fragCode = this->read_file(fragmentFilepath);
+}
+
+} /* end lve namespace */
