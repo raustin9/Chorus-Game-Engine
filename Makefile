@@ -8,13 +8,13 @@ all: bin/vulkan_test
 run: bin/vulkan_test
 	./$<
 
-bin/vulkan_test: obj/main.o obj/lve_pipeline.o
-	$(CC) $(CFLAGS) obj/main.o obj/lve_pipeline.o -o $@ $(LDFLAGS)
+bin/vulkan_test: obj/main.o obj/cge_pipeline.o
+	$(CC) $(CFLAGS) obj/main.o obj/cge_pipeline.o -o $@ $(LDFLAGS)
 
 obj/main.o: src/main.cc 
 	$(CC) $(CFLAGS) -c $(INCLUDES) -o $@ $< $(LDFLAGS)
 
-obj/lve_pipeline.o: src/lve_pipeline.cc
+obj/cge_pipeline.o: src/cge_pipeline.cc
 	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
 
 clean:

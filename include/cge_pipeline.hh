@@ -5,11 +5,11 @@
 #include <string>
 #include <vector>
 
-namespace lve {
+namespace cge {
 
-    class LvePipeline {
+    class CgePipeline {
         public:
-            LvePipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath);
+            CgePipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath);
 
 	    private:
 	        static std::vector<char> read_file(const std::string& filepath);

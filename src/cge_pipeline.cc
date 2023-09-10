@@ -1,17 +1,17 @@
-#include "lve_pipeline.hh"
+#include "cge_pipeline.hh"
 
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
 
-namespace lve {
+namespace cge {
 
-    LvePipeline::LvePipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
+    CgePipeline::CgePipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
         this->create_graphics_pipeline(vertexFilepath, fragmentFilepath);
     }
     
     std::vector<char> 
-    LvePipeline::read_file(const std::string& filepath) {
+    CgePipeline::read_file(const std::string& filepath) {
         std::ifstream file{filepath, std::ios::ate | std::ios::binary};
       
         if (!file.is_open()) {
@@ -29,7 +29,7 @@ namespace lve {
     }
     
     void
-    LvePipeline::create_graphics_pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
+    CgePipeline::create_graphics_pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
         auto vertCode = this->read_file(vertexFilepath);
         auto fragCode = this->read_file(fragmentFilepath);
 

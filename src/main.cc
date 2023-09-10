@@ -5,13 +5,13 @@
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/vec4.hpp>
 #include <glm/mat4x4.hpp>
-#include "lve_pipeline.hh"
+#include "cge_pipeline.hh"
 
 #include <iostream>
 #include <string>
 
 int main() {
-    lve::LvePipeline pipeline = lve::LvePipeline("src/shaders/simple.vert.spv", "src/shaders/simple.frag.spv");
+    cge::CgePipeline pipeline = cge::CgePipeline("src/shaders/simple.vert.spv", "src/shaders/simple.frag.spv");
 
     glfwInit();
 
