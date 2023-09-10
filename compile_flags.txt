@@ -1,4 +1,5 @@
 -std=c++17 
+-Iinclude
 -O2
 -lglfw 
 -lvulkan 
