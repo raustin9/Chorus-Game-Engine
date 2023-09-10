@@ -6,12 +6,12 @@
 
 namespace cge {
 
-    CgePipeline::CgePipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
+    CGE_Pipeline::CGE_Pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
         this->create_graphics_pipeline(vertexFilepath, fragmentFilepath);
     }
     
     std::vector<char> 
-    CgePipeline::read_file(const std::string& filepath) {
+    CGE_Pipeline::read_file(const std::string& filepath) {
         std::ifstream file{filepath, std::ios::ate | std::ios::binary};
       
         if (!file.is_open()) {
@@ -29,7 +29,7 @@ namespace cge {
     }
     
     void
-    CgePipeline::create_graphics_pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
+    CGE_Pipeline::create_graphics_pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
         auto vertCode = this->read_file(vertexFilepath);
         auto fragCode = this->read_file(fragmentFilepath);
 

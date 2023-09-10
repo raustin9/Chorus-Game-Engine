@@ -7,9 +7,9 @@
 
 namespace cge {
 
-    class CgePipeline {
+    class CGE_Pipeline {
         public:
-            CgePipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath);
+            CGE_Pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath);
 
 	    private:
 	        static std::vector<char> read_file(const std::string& filepath);

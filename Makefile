@@ -8,8 +8,8 @@ all: bin/vulkan_test
 run: bin/vulkan_test
 	./$<
 
-bin/vulkan_test: obj/main.o obj/cge_pipeline.o
-	$(CC) $(CFLAGS) obj/main.o obj/cge_pipeline.o -o $@ $(LDFLAGS)
+bin/vulkan_test: obj/main.o obj/cge_engine.o obj/cge_pipeline.o obj/cge_window.o
+	$(CC) $(CFLAGS) obj/main.o obj/cge_engine.o obj/cge_window.o obj/cge_pipeline.o  -o $@ $(LDFLAGS)
 
 obj/main.o: src/main.cc 
 	$(CC) $(CFLAGS) -c $(INCLUDES) -o $@ $< $(LDFLAGS)
@@ -17,5 +17,10 @@ obj/main.o: src/main.cc
 obj/cge_pipeline.o: src/cge_pipeline.cc
 	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
 
+obj/cge_window.o: src/cge_window.cc
+	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
+
+obj/cge_engine.o: src/cge_engine.cc
+	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
 clean:
 	rm -f bin/* obj/* lib/*
