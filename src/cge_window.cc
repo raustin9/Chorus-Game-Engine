@@ -5,6 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <cstdint>
 #include <cstdio>
+#include <stdexcept>
+#include <vulkan/vulkan.h>
 
 namespace cge {
     //
@@ -18,11 +20,16 @@ namespace cge {
     }
 
     CGE_Window::~CGE_Window() {
-        glfwDestroyWindow(this->_window);
+        if (this->_window)
+            glfwDestroyWindow(this->_window);
         glfwTerminate();
         printf("Window destroyed\n");
     }
 
+    //
+    // Inititalization behavior
+    // for GLFW window
+    //
     void 
     CGE_Window::_init_window() {
         if (!glfwInit()) {
@@ -47,6 +54,9 @@ namespace cge {
         }
     }
 
+    //
+    // Open the GLFW window
+    //
     void
     CGE_Window::_open_window() {
         if (this->_window) {
@@ -56,6 +66,13 @@ namespace cge {
         } else {
             fprintf(stderr, "Error: window is not initialized\n");
             exit(1);
+        }
+    }
+
+    void
+    CGE_Window::_create_window_surface(VkInstance instance, VkSurfaceKHR *surface) {
+        if (glfwCreateWindowSurface(instance, this->_window, nullptr, surface) != VK_SUCCESS) {
+            throw std::runtime_error("Error: failed to create window surface");
         }
     }
 

@@ -1,13 +1,24 @@
 #include "cge_pipeline.hh"
+#include "cge_device.hh"
 
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
+#include <vulkan/vulkan_core.h>
 
 namespace cge {
 
-    CGE_Pipeline::CGE_Pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
-        this->create_graphics_pipeline(vertexFilepath, fragmentFilepath);
+    CGE_Pipeline::CGE_Pipeline(
+        CGE_Device &device,
+        const std::string& vertexFilepath, 
+        const std::string& fragmentFilepath,
+        const PipelineConfigInfo &configInfo
+    ) : _device{device} {
+        this->create_graphics_pipeline(vertexFilepath, fragmentFilepath, configInfo);
+    }
+
+    CGE_Pipeline::~CGE_Pipeline() {
+
     }
     
     std::vector<char> 
@@ -28,13 +39,47 @@ namespace cge {
         return buffer;
     }
     
+    //
+    // Create the graphics pipeline
+    //
     void
-    CGE_Pipeline::create_graphics_pipeline(const std::string& vertexFilepath, const std::string& fragmentFilepath) {
+    CGE_Pipeline::create_graphics_pipeline(
+        const std::string& vertexFilepath, 
+        const std::string& fragmentFilepath, 
+        const PipelineConfigInfo configInfo
+    ) {
         auto vertCode = this->read_file(vertexFilepath);
         auto fragCode = this->read_file(fragmentFilepath);
 
         std::cout << "Vertex code size: " << vertCode.size() << std::endl;
         std::cout << "Fragment code size: " << fragCode.size() << std::endl;
+    }
+
+    //
+    // Create a shader module
+    //
+    void
+    CGE_Pipeline::_create_shader_module(
+        const std::vector <char> &code,
+        VkShaderModule *module
+    ) {
+        VkShaderModuleCreateInfo create_info {};
+        create_info.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+        create_info.codeSize = code.size();
+        create_info.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+        if (vkCreateShaderModule(this->_device.device(), &create_info, nullptr, module) != VK_SUCCESS) {
+            throw std::runtime_error("Error: failed to create shader module");
+        }
+    }
+
+    //
+    // Default Pipeline Config
+    //
+    PipelineConfigInfo
+    CGE_Pipeline::_default_pipeline_config_info(uint32_t width, uint32_t height) {
+        PipelineConfigInfo config {};
+        return config;
     }
 
 } /* end lve namespace */

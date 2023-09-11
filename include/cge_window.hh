@@ -1,4 +1,5 @@
 #pragma once
+#include <vulkan/vulkan_core.h>
 #ifndef WINDOW
 #define WINDOW
 
@@ -14,6 +15,8 @@ namespace cge {
             CGE_Window &operator=(const CGE_Window) = delete;
             ~CGE_Window();
             void _open_window();
+            bool shouldClose();
+            void _create_window_surface(VkInstance instance, VkSurfaceKHR *surface);
 
         private:
             void _init_window();
