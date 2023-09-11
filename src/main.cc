@@ -9,11 +9,11 @@
 int main() {
     cge::CGE_Engine engine = cge::CGE_Engine();
 
-//    try {
-//        engine._run();
-//    } catch (const std::exception &e) {
-//        printf("this err\n");
-//        fprintf(stderr, "Error: %s\n", e.what());
-//    }
+    try {
+        engine._run();
+    } catch (const std::exception &e) {
+        printf("this err\n");
+        fprintf(stderr, "Error: %s\n", e.what());
+    }
     return 0;
 }
