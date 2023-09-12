@@ -4,6 +4,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
+#include <cassert>
 #include <vulkan/vulkan_core.h>
 
 namespace cge {
@@ -18,7 +19,10 @@ namespace cge {
     }
 
     CGE_Pipeline::~CGE_Pipeline() {
+        vkDestroyShaderModule(this->_device.device(), this->_vert_shader_module, nullptr);
+        vkDestroyShaderModule(this->_device.device(), this->_frag_shader_module, nullptr);
 
+        vkDestroyPipeline(this->_device.device(), this->_graphics_pipeline, nullptr);
     }
     
     std::vector<char> 
@@ -48,12 +52,67 @@ namespace cge {
         const std::string& fragmentFilepath, 
         const PipelineConfigInfo configInfo
     ) {
-        auto vertCode = this->read_file(vertexFilepath);
-        auto fragCode = this->read_file(fragmentFilepath);
+        assert(configInfo._pipeline_layout != VK_NULL_HANDLE 
+                && "Cannot create graphics pipeline:: no pipeline_layout provided in configInfo");
+        assert(configInfo._render_pass != VK_NULL_HANDLE 
+                && "Cannot create graphics pipeline:: no render_pass provided in configInfo");
+        auto vert_code = this->read_file(vertexFilepath);
+        auto frag_code = this->read_file(fragmentFilepath);
 
-        std::cout << "Vertex code size: " << vertCode.size() << std::endl;
-        std::cout << "Fragment code size: " << fragCode.size() << std::endl;
+        this->_create_shader_module(vert_code, &this->_vert_shader_module);
+        this->_create_shader_module(frag_code, &this->_frag_shader_module);
+
+        VkPipelineShaderStageCreateInfo shader_stages[2];
+
+        shader_stages[0].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shader_stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
+        shader_stages[0].module = this->_vert_shader_module;
+        shader_stages[0].pName = "main";
+        shader_stages[0].flags = 0;
+        shader_stages[0].pNext = nullptr;
+        shader_stages[0].pSpecializationInfo = nullptr;
+
+        shader_stages[1].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        shader_stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
+        shader_stages[1].module = this->_frag_shader_module;
+        shader_stages[1].pName = "main";
+        shader_stages[1].flags = 0;
+        shader_stages[1].pNext = nullptr;
+        shader_stages[1].pSpecializationInfo = nullptr;
+
+        VkPipelineVertexInputStateCreateInfo vertex_input_info{};
+        vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
+        vertex_input_info.vertexAttributeDescriptionCount = 0;
+        vertex_input_info.vertexBindingDescriptionCount   = 0;
+        vertex_input_info.pVertexBindingDescriptions   = nullptr;
+        vertex_input_info.pVertexAttributeDescriptions = nullptr;
+
+        VkGraphicsPipelineCreateInfo pipeline_info{};
+        pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipeline_info.stageCount = 2;
+        pipeline_info.pStages = shader_stages;
+        pipeline_info.pVertexInputState = &vertex_input_info;
+        pipeline_info.pInputAssemblyState = &configInfo._input_assembly_info;
+        pipeline_info.pViewportState = &configInfo._viewport_info;
+        pipeline_info.pRasterizationState = &configInfo._rasterization_info;
+        pipeline_info.pMultisampleState = &configInfo._multisample_info;
+        pipeline_info.pColorBlendState = &configInfo._color_blend_info;
+        pipeline_info.pDepthStencilState = &configInfo._depth_stencil_info;
+        pipeline_info.pDynamicState = nullptr; // optional
+
+        pipeline_info.layout = configInfo._pipeline_layout;
+        pipeline_info.renderPass = configInfo._render_pass;
+        pipeline_info.subpass = configInfo._subpass;
+
+        pipeline_info.basePipelineIndex = -1;
+        pipeline_info.basePipelineHandle = VK_NULL_HANDLE;
+
+        if (vkCreateGraphicsPipelines(this->_device.device(), VK_NULL_HANDLE, 1, &pipeline_info, nullptr, &_graphics_pipeline)
+            != VK_SUCCESS) {
+            throw std::runtime_error("Error: failed to create graphics pipeline\n");
+        }
     }
+
 
     //
     // Create a shader module
@@ -79,6 +138,88 @@ namespace cge {
     PipelineConfigInfo
     CGE_Pipeline::_default_pipeline_config_info(uint32_t width, uint32_t height) {
         PipelineConfigInfo config {};
+
+        config._input_assembly_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
+        config._input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+        config._input_assembly_info.primitiveRestartEnable = VK_FALSE;
+
+        /* Viewport Configuration */
+        config._viewport.x = 0.0F;
+        config._viewport.y = 0.0F;
+        config._viewport.width  = static_cast<float>(width);
+        config._viewport.height = static_cast<float>(height);
+        config._viewport.minDepth = 0.0F;
+        config._viewport.maxDepth = 1.0F;
+
+        /* Scissor Configuration */
+        config._scissor.offset = {0, 0};
+        config._scissor.extent = {width, height};
+
+        /* Specific GPU Viewport Tooling -- some GPUs can support multiple viewports and scissors. We only want 1 */
+        config._viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        config._viewport_info.viewportCount = 1;
+        config._viewport_info.pViewports    = &config._viewport;
+        config._viewport_info.scissorCount  = 1;
+        config._viewport_info.pScissors     = &config._scissor;
+
+        /* Rasterization Configuration */
+        config._rasterization_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
+        config._rasterization_info.depthClampEnable = VK_FALSE;
+        config._rasterization_info.rasterizerDiscardEnable = VK_FALSE;
+        config._rasterization_info.polygonMode = VK_POLYGON_MODE_FILL;
+        config._rasterization_info.lineWidth = 1.0F;
+        config._rasterization_info.cullMode = VK_CULL_MODE_NONE;
+        config._rasterization_info.frontFace = VK_FRONT_FACE_CLOCKWISE;
+        config._rasterization_info.depthBiasEnable = VK_FALSE;
+        config._rasterization_info.depthBiasConstantFactor = 0.0F;
+        config._rasterization_info.depthBiasClamp = 0.0F;
+        config._rasterization_info.depthBiasSlopeFactor = 0.0F;
+
+        /* Multisampling Configuration -- helps with aliasing */
+        config._multisample_info.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
+        config._multisample_info.sampleShadingEnable   = VK_FALSE;
+        config._multisample_info.rasterizationSamples  = VK_SAMPLE_COUNT_1_BIT;
+        config._multisample_info.minSampleShading      = 1.0F;
+        config._multisample_info.pSampleMask           = nullptr;
+        config._multisample_info.alphaToCoverageEnable = VK_FALSE;
+        config._multisample_info.alphaToOneEnable      = VK_FALSE;
+
+        /* Color Blending Configuration */
+        config._color_blend_attachment.colorWriteMask = 
+              VK_COLOR_COMPONENT_R_BIT 
+            | VK_COLOR_COMPONENT_G_BIT
+            | VK_COLOR_COMPONENT_B_BIT
+            | VK_COLOR_COMPONENT_A_BIT;
+        config._color_blend_attachment.blendEnable = VK_FALSE;
+        config._color_blend_attachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        config._color_blend_attachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+        config._color_blend_attachment.colorBlendOp = VK_BLEND_OP_ADD;
+        config._color_blend_attachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        config._color_blend_attachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        config._color_blend_attachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+        config._color_blend_info.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        config._color_blend_info.logicOpEnable = VK_FALSE;
+        config._color_blend_info.logicOp = VK_LOGIC_OP_COPY;
+        config._color_blend_info.attachmentCount = 1;
+        config._color_blend_info.pAttachments = &config._color_blend_attachment;
+        config._color_blend_info.blendConstants[0] = 0.0F;
+        config._color_blend_info.blendConstants[1] = 0.0F;
+        config._color_blend_info.blendConstants[2] = 0.0F;
+        config._color_blend_info.blendConstants[3] = 0.0F;
+
+        /* Depth Testing Configuration */
+        config._depth_stencil_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+        config._depth_stencil_info.depthTestEnable = VK_TRUE;
+        config._depth_stencil_info.depthWriteEnable = VK_TRUE;
+        config._depth_stencil_info.depthCompareOp = VK_COMPARE_OP_LESS;
+        config._depth_stencil_info.depthBoundsTestEnable = VK_FALSE;
+        config._depth_stencil_info.minDepthBounds = 0.0F;
+        config._depth_stencil_info.maxDepthBounds = 1.0F;
+        config._depth_stencil_info.stencilTestEnable = VK_FALSE;
+        config._depth_stencil_info.front = {};
+        config._depth_stencil_info.back  = {};
+
         return config;
     }
 

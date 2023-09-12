@@ -12,7 +12,18 @@
 namespace cge {
 
     struct PipelineConfigInfo {
-
+        VkPipelineInputAssemblyStateCreateInfo _input_assembly_info;
+        VkViewport _viewport;
+        VkRect2D _scissor;
+        VkPipelineViewportStateCreateInfo _viewport_info;
+        VkPipelineRasterizationStateCreateInfo _rasterization_info;
+        VkPipelineMultisampleStateCreateInfo _multisample_info;
+        VkPipelineColorBlendAttachmentState _color_blend_attachment;
+        VkPipelineColorBlendStateCreateInfo _color_blend_info;
+        VkPipelineDepthStencilStateCreateInfo _depth_stencil_info;
+        VkPipelineLayout _pipeline_layout = nullptr;
+        VkRenderPass _render_pass = nullptr;
+        uint32_t _subpass = 0;
     };
 
     class CGE_Pipeline {
