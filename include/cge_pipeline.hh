@@ -15,7 +15,6 @@ namespace cge {
         VkPipelineInputAssemblyStateCreateInfo _input_assembly_info;
         VkViewport _viewport;
         VkRect2D _scissor;
-        VkPipelineViewportStateCreateInfo _viewport_info;
         VkPipelineRasterizationStateCreateInfo _rasterization_info;
         VkPipelineMultisampleStateCreateInfo _multisample_info;
         VkPipelineColorBlendAttachmentState _color_blend_attachment;

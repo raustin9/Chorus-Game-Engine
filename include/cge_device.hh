@@ -1,8 +1,9 @@
 #pragma once
-#ifndef DEVICE
-#define DEVICE
+#ifndef CGE_DEVICE
+#define CGE_DEVICE
 
 #include "cge_window.hh"
+// #include "cge_swap_chain.hh"
 
 // std lib headers
 #include <string>
@@ -110,4 +111,4 @@ namespace cge {
 
 } /* end cge namespace */
 
-#endif /* DEVICE */
+#endif /* CGE_DEVICE */

@@ -69,11 +69,23 @@ namespace cge {
         }
     }
 
+    //
+    // Create the surface of the window
+    //
     void
     CGE_Window::_create_window_surface(VkInstance instance, VkSurfaceKHR *surface) {
         if (glfwCreateWindowSurface(instance, this->_window, nullptr, surface) != VK_SUCCESS) {
             throw std::runtime_error("Error: failed to create window surface");
         }
+    }
+
+    // GETTERS //
+    VkExtent2D
+    CGE_Window::_get_extent() {
+        return {
+            static_cast<uint32_t>(this->_width), 
+            static_cast<uint32_t>(this->_height)
+        };
     }
 
 }

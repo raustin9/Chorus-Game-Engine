@@ -17,6 +17,7 @@ namespace cge {
             void _open_window();
             bool shouldClose();
             void _create_window_surface(VkInstance instance, VkSurfaceKHR *surface);
+            VkExtent2D _get_extent(); 
 
         private:
             void _init_window();

@@ -87,13 +87,21 @@ namespace cge {
         vertex_input_info.pVertexBindingDescriptions   = nullptr;
         vertex_input_info.pVertexAttributeDescriptions = nullptr;
 
+        /* Specific GPU Viewport Tooling -- some GPUs can support multiple viewports and scissors. We only want 1 */
+        VkPipelineViewportStateCreateInfo viewport_info{};
+        viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        viewport_info.viewportCount = 1;
+        viewport_info.pViewports    = &configInfo._viewport;
+        viewport_info.scissorCount  = 1;
+        viewport_info.pScissors     = &configInfo._scissor;
+
         VkGraphicsPipelineCreateInfo pipeline_info{};
         pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
         pipeline_info.stageCount = 2;
         pipeline_info.pStages = shader_stages;
         pipeline_info.pVertexInputState = &vertex_input_info;
         pipeline_info.pInputAssemblyState = &configInfo._input_assembly_info;
-        pipeline_info.pViewportState = &configInfo._viewport_info;
+        pipeline_info.pViewportState = &viewport_info;
         pipeline_info.pRasterizationState = &configInfo._rasterization_info;
         pipeline_info.pMultisampleState = &configInfo._multisample_info;
         pipeline_info.pColorBlendState = &configInfo._color_blend_info;
@@ -154,13 +162,6 @@ namespace cge {
         /* Scissor Configuration */
         config._scissor.offset = {0, 0};
         config._scissor.extent = {width, height};
-
-        /* Specific GPU Viewport Tooling -- some GPUs can support multiple viewports and scissors. We only want 1 */
-        config._viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        config._viewport_info.viewportCount = 1;
-        config._viewport_info.pViewports    = &config._viewport;
-        config._viewport_info.scissorCount  = 1;
-        config._viewport_info.pScissors     = &config._scissor;
 
         /* Rasterization Configuration */
         config._rasterization_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
