@@ -27,6 +27,15 @@ namespace cge {
     }
 
     //
+    // Helper function to return if GLFW 
+    // context window should close
+    //
+    bool
+    CGE_Window::_should_close() {
+        return glfwWindowShouldClose(this->_window);
+    }
+
+    //
     // Inititalization behavior
     // for GLFW window
     //

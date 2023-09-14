@@ -1,3 +1,3 @@
-/usr/local/bin/install/bin/glslc src/shaders/simple.vert -o src/shaders/simple.vert.spv
+/usr/local/bin/glslc shaders/simple.vert -o shaders/simple.vert.spv
  
-/usr/local/bin/install/bin/glslc src/shaders/simple.frag -o src/shaders/simple.frag.spv
+/usr/local/bin/glslc shaders/simple.frag -o shaders/simple.frag.spv

@@ -15,7 +15,7 @@ namespace cge {
             CGE_Window &operator=(const CGE_Window) = delete;
             ~CGE_Window();
             void _open_window();
-            bool shouldClose();
+            bool _should_close();
             void _create_window_surface(VkInstance instance, VkSurfaceKHR *surface);
             VkExtent2D _get_extent(); 
 

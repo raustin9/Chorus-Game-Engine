@@ -38,6 +38,7 @@ namespace cge {
             ~CGE_Pipeline();
 
             static PipelineConfigInfo _default_pipeline_config_info(uint32_t width, uint32_t height);
+            void _bind(VkCommandBuffer command_buffer);
 
 	    private:
             CGE_Device &_device;

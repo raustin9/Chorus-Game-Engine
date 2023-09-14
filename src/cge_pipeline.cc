@@ -121,6 +121,11 @@ namespace cge {
         }
     }
 
+    void
+    CGE_Pipeline::_bind(VkCommandBuffer command_buffer) {
+        vkCmdBindPipeline(command_buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, this->_graphics_pipeline);
+    }
+
 
     //
     // Create a shader module
