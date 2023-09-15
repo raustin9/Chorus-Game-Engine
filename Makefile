@@ -17,14 +17,14 @@ run: bin/vulkan_test $(vertobjfiles) $(fragobjfiles)
 	./$<
 
 clean:
-	rm -f bin/* obj/* lib/* *.spv
+	rm -f bin/* obj/* lib/* shaders/*.spv
 
 # Shader targets
 %.spv: %
 	$(GLSLC) $< -o $@
 
-bin/vulkan_test: obj/main.o obj/cge_engine.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_pipeline.o obj/cge_window.o
-	$(CC) $(CFLAGS) obj/main.o obj/cge_engine.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_window.o obj/cge_pipeline.o  -o $@ $(LDFLAGS)
+bin/vulkan_test: obj/main.o obj/cge_engine.o obj/cge_model.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_pipeline.o obj/cge_window.o
+	$(CC) $(CFLAGS) obj/main.o obj/cge_engine.o obj/cge_model.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_window.o obj/cge_pipeline.o  -o $@ $(LDFLAGS)
 
 obj/main.o: src/main.cc 
 	$(CC) $(CFLAGS) -c $(INCLUDES) -o $@ $< $(LDFLAGS)
@@ -44,3 +44,5 @@ obj/cge_device.o: src/cge_device.cc
 obj/cge_swap_chain.o: src/cge_swap_chain.cc
 	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
 
+obj/cge_model.o: src/cge_model.cc
+	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)

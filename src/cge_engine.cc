@@ -1,4 +1,5 @@
 #include "cge_engine.hh"
+#include "cge_model.hh"
 #include "cge_pipeline.hh"
 #include "cge_swap_chain.hh"
 #include <GLFW/glfw3.h>
@@ -14,6 +15,7 @@ namespace cge {
     // CONSTRUCTOR
     //
     CGE_Engine::CGE_Engine() {
+        this->_load_models();
         this->_create_pipeline_layout();
         this->_create_pipeline();
         this->_create_command_buffers();
@@ -60,6 +62,17 @@ namespace cge {
             ) != VK_SUCCESS) {
             throw std::runtime_error("Error: failed to create pipeline layout info");
         }
+    }
+
+    void
+    CGE_Engine::_load_models() {
+        std::vector<CGE_Model::Vertex> vertices {
+            {{0.0f, -0.5f}},
+            {{0.5f,  0.5f}},
+            {{-0.5f, 0.5f}}
+        };
+
+        this->_model = std::make_unique<CGE_Model>(this->_device, vertices);
     }
 
     //
@@ -120,7 +133,9 @@ namespace cge {
             vkCmdBeginRenderPass(this->_command_buffers[i], &render_pass_info, VK_SUBPASS_CONTENTS_INLINE);
 
             this->_pipeline->_bind(this->_command_buffers[i]);
-            vkCmdDraw(this->_command_buffers[i], 3, 1, 0, 0);
+            this->_model->_bind(this->_command_buffers[i]);
+            this->_model->_draw(this->_command_buffers[i]);
+            // vkCmdDraw(this->_command_buffers[i], 3, 1, 0, 0);
 
             vkCmdEndRenderPass(this->_command_buffers[i]);
             if (vkEndCommandBuffer(this->_command_buffers[i]) != VK_SUCCESS) {
