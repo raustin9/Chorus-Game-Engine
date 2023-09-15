@@ -1,4 +1,3 @@
-# Vulkan Playground
-This is just me playing around with the vulkan graphics library
-for fun to see what it is. Maybe I will do a cool project with it in
-here who knows?
+# Chorus Game Engine
+This is a small game engine that I am building using the Vulkan Graphics API.  
+The goal is to somewhat emulate what I have done in WebGL on my Envy rendering engine, but there is a lot more overhead compared to javascript and even compared to OpenGL itself.  
