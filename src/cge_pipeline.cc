@@ -1,11 +1,12 @@
 #include "cge_pipeline.hh"
+#include "cge_model.hh"
 #include "cge_device.hh"
 
 #include <fstream>
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
-#include <vulkan/vulkan_core.h>
+#include <vulkan/vulkan.h>
 
 namespace cge {
 
@@ -80,12 +81,14 @@ namespace cge {
         shader_stages[1].pNext = nullptr;
         shader_stages[1].pSpecializationInfo = nullptr;
 
+        auto binding_descriptions = CGE_Model::Vertex::get_binding_description();
+        auto attribute_descriptions = CGE_Model::Vertex::get_attribute_description();
         VkPipelineVertexInputStateCreateInfo vertex_input_info{};
         vertex_input_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertex_input_info.vertexAttributeDescriptionCount = 0;
-        vertex_input_info.vertexBindingDescriptionCount   = 0;
-        vertex_input_info.pVertexBindingDescriptions   = nullptr;
-        vertex_input_info.pVertexAttributeDescriptions = nullptr;
+        vertex_input_info.vertexAttributeDescriptionCount = static_cast<uint32_t>(attribute_descriptions.size());;
+        vertex_input_info.vertexBindingDescriptionCount   = static_cast<uint32_t>(binding_descriptions.size());
+        vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions.data();
+        vertex_input_info.pVertexBindingDescriptions   = binding_descriptions.data();
 
         /* Specific GPU Viewport Tooling -- some GPUs can support multiple viewports and scissors. We only want 1 */
         VkPipelineViewportStateCreateInfo viewport_info{};

@@ -5,6 +5,7 @@
 #ifndef ENGINE
 #define ENGINE
 
+#include "cge_model.hh"
 #include "cge_device.hh"
 #include "cge_window.hh"
 #include "cge_pipeline.hh"
@@ -24,6 +25,7 @@ namespace cge {
             static constexpr int HEIGHT = 600;
 
         private:
+            void _load_models();
             void _create_pipeline_layout();
             void _create_pipeline();
             void _create_command_buffers();
@@ -35,6 +37,7 @@ namespace cge {
             VkPipelineLayout _pipeline_layout;
             std::unique_ptr<CGE_Pipeline> _pipeline;
             std::vector<VkCommandBuffer> _command_buffers;
+            std::unique_ptr<CGE_Model> _model;
 
             // CGE_Pipeline _pipeline = CGE_Pipeline(_device, "shaders/simple.vert.spv", "shaders/simple.frag.spv", CGE_Pipeline::_default_pipeline_config_info(WIDTH, HEIGHT));
     };
