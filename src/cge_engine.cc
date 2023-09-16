@@ -67,9 +67,9 @@ namespace cge {
     void
     CGE_Engine::_load_models() {
         std::vector<CGE_Model::Vertex> vertices {
-            {{0.0f, -0.5f}},
-            {{0.5f,  0.5f}},
-            {{-0.5f, 0.5f}}
+            {{0.0f, -0.5f}, {1.0F, 0.0F, 0.0F}},
+            {{0.5f,  0.5f}, {0.0F, 1.0F, 0.0F}},
+            {{-0.5f, 0.5f}, {0.0F, 0.0F, 1.0F}}
         };
 
         this->_model = std::make_unique<CGE_Model>(this->_device, vertices);
