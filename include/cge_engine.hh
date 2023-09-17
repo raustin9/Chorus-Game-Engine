@@ -1,10 +1,10 @@
 #pragma once
-#include <memory>
-#include <vector>
-#include <vulkan/vulkan_core.h>
 #ifndef ENGINE
 #define ENGINE
 
+#include <memory>
+#include <vector>
+#include <vulkan/vulkan_core.h>
 #include "cge_model.hh"
 #include "cge_device.hh"
 #include "cge_window.hh"
@@ -18,7 +18,7 @@ namespace cge {
             ~CGE_Engine();
 
             CGE_Engine(const CGE_Engine&) = delete;
-            CGE_Engine operator=(const CGE_Engine&) = delete;
+            CGE_Engine& operator=(const CGE_Engine&) = delete;
             
             void _run();
             static constexpr int WIDTH = 800;
@@ -29,11 +29,15 @@ namespace cge {
             void _create_pipeline_layout();
             void _create_pipeline();
             void _create_command_buffers();
+            void _free_command_buffers();
             void _draw_frame();
+            void _recreate_swap_chain();
+            void _record_command_buffer(int image_index);
 
             CGE_Window _window = CGE_Window(WIDTH, HEIGHT, "Chorus Engine");
             CGE_Device _device {_window};
-            CGE_SwapChain _swap_chain {this->_device, this->_window._get_extent()};
+            std::unique_ptr<CGE_SwapChain> _swap_chain;
+            // CGE_SwapChain _swap_chain {this->_device, this->_window._get_extent()};
             VkPipelineLayout _pipeline_layout;
             std::unique_ptr<CGE_Pipeline> _pipeline;
             std::vector<VkCommandBuffer> _command_buffers;

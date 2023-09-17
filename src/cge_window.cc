@@ -47,7 +47,7 @@ namespace cge {
         }
 
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+        glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     
         this->_window = glfwCreateWindow(
                             this->_width,
@@ -61,6 +61,8 @@ namespace cge {
             exit(1);
             glfwTerminate();
         }
+        glfwSetWindowUserPointer(this->_window, this);
+        glfwSetFramebufferSizeCallback(this->_window, CGE_Window::_frame_buffer_resize_callback);
     }
 
     //
@@ -95,6 +97,14 @@ namespace cge {
             static_cast<uint32_t>(this->_width), 
             static_cast<uint32_t>(this->_height)
         };
+    }
+    
+    void 
+    CGE_Window::_frame_buffer_resize_callback(GLFWwindow *window, int width, int height) {
+        auto cge_window = reinterpret_cast<CGE_Window*>(glfwGetWindowUserPointer(window));
+        cge_window->_frame_buffer_resized = true;
+        cge_window->_width = width;
+        cge_window->_height = height;
     }
 
 }

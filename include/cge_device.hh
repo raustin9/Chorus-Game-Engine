@@ -39,7 +39,7 @@ namespace cge {
     
         // Not copyable or movable
         CGE_Device(const CGE_Device &) = delete;
-        void operator=(const CGE_Device &) = delete;
+        CGE_Device& operator=(const CGE_Device &) = delete;
         CGE_Device(CGE_Device &&) = delete;
         CGE_Device &operator=(CGE_Device &&) = delete;
     

@@ -9,6 +9,7 @@
 // std lib headers
 #include <string>
 #include <vector>
+#include <memory>
 #include "cge_device.hh"
 
 namespace cge {
@@ -18,10 +19,11 @@ namespace cge {
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
     
         CGE_SwapChain(CGE_Device &deviceRef, VkExtent2D windowExtent);
+        CGE_SwapChain(CGE_Device &deviceRef, VkExtent2D windowExtent, std::shared_ptr<CGE_SwapChain> previous);
         ~CGE_SwapChain();
     
         CGE_SwapChain(const CGE_SwapChain &) = delete;
-        void operator=(const CGE_SwapChain &) = delete;
+        CGE_SwapChain& operator=(const CGE_SwapChain &) = delete;
     
         VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
         VkRenderPass getRenderPass() { return renderPass; }
@@ -41,6 +43,7 @@ namespace cge {
         VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
     
      private:
+        void init();
         void createSwapChain();
         void createImageViews();
         void createDepthResources();
@@ -71,6 +74,7 @@ namespace cge {
         VkExtent2D windowExtent;
     
         VkSwapchainKHR swapChain;
+        std::shared_ptr<CGE_SwapChain> oldSwapChain;
     
         std::vector<VkSemaphore> imageAvailableSemaphores;
         std::vector<VkSemaphore> renderFinishedSemaphores;

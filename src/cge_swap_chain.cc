@@ -4,6 +4,7 @@
 #include <iostream>
 #include <limits>
 #include <set>
+#include <memory>
 #include <stdexcept>
 
 #include "cge_swap_chain.hh"
@@ -12,12 +13,37 @@ namespace cge {
 
     CGE_SwapChain::CGE_SwapChain(CGE_Device &deviceRef, VkExtent2D extent)
             : device{deviceRef}, windowExtent{extent} {
+//        createSwapChain();
+//        createImageViews();
+//        createRenderPass();
+//        createDepthResources();
+//        createFramebuffers();
+//        createSyncObjects();
+        this->init();
+    }
+
+    CGE_SwapChain::CGE_SwapChain(CGE_Device &deviceRef, VkExtent2D extent, std::shared_ptr<CGE_SwapChain> previous)
+            : device{deviceRef}, windowExtent{extent}, oldSwapChain(previous) {
+//        createSwapChain();
+//        createImageViews();
+//        createRenderPass();
+//        createDepthResources();
+//        createFramebuffers();
+//        createSyncObjects();
+        this->init();
+
+        // Clean up the old swap chain
+        oldSwapChain = nullptr;
+    }
+
+    void CGE_SwapChain::init() {
         createSwapChain();
         createImageViews();
         createRenderPass();
         createDepthResources();
         createFramebuffers();
         createSyncObjects();
+        
     }
     
     CGE_SwapChain::~CGE_SwapChain() {
@@ -161,7 +187,7 @@ namespace cge {
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
     
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
+        createInfo.oldSwapchain = this->oldSwapChain == nullptr ? VK_NULL_HANDLE : this->oldSwapChain->swapChain;
     
         if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
             throw std::runtime_error("failed to create swap chain!");

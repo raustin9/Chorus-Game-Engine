@@ -7,6 +7,7 @@
 #include <iostream>
 #include <cassert>
 #include <vulkan/vulkan.h>
+#include <vulkan/vulkan_core.h>
 
 namespace cge {
 
@@ -51,7 +52,7 @@ namespace cge {
     CGE_Pipeline::create_graphics_pipeline(
         const std::string& vertexFilepath, 
         const std::string& fragmentFilepath, 
-        const PipelineConfigInfo configInfo
+        const PipelineConfigInfo &configInfo
     ) {
         assert(configInfo._pipeline_layout != VK_NULL_HANDLE 
                 && "Cannot create graphics pipeline:: no pipeline_layout provided in configInfo");
@@ -90,13 +91,13 @@ namespace cge {
         vertex_input_info.pVertexAttributeDescriptions = attribute_descriptions.data();
         vertex_input_info.pVertexBindingDescriptions   = binding_descriptions.data();
 
-        /* Specific GPU Viewport Tooling -- some GPUs can support multiple viewports and scissors. We only want 1 */
-        VkPipelineViewportStateCreateInfo viewport_info{};
-        viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewport_info.viewportCount = 1;
-        viewport_info.pViewports    = &configInfo._viewport;
-        viewport_info.scissorCount  = 1;
-        viewport_info.pScissors     = &configInfo._scissor;
+//        /* Specific GPU Viewport Tooling -- some GPUs can support multiple viewports and scissors. We only want 1 */
+//        VkPipelineViewportStateCreateInfo viewport_info{};
+//        viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+//        viewport_info.viewportCount = 1;
+//        viewport_info.pViewports    = &configInfo._viewport;
+//        viewport_info.scissorCount  = 1;
+//        viewport_info.pScissors     = &configInfo._scissor;
 
         VkGraphicsPipelineCreateInfo pipeline_info{};
         pipeline_info.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -104,12 +105,12 @@ namespace cge {
         pipeline_info.pStages = shader_stages;
         pipeline_info.pVertexInputState = &vertex_input_info;
         pipeline_info.pInputAssemblyState = &configInfo._input_assembly_info;
-        pipeline_info.pViewportState = &viewport_info;
+        pipeline_info.pViewportState = &configInfo._viewport_info;
         pipeline_info.pRasterizationState = &configInfo._rasterization_info;
         pipeline_info.pMultisampleState = &configInfo._multisample_info;
         pipeline_info.pColorBlendState = &configInfo._color_blend_info;
         pipeline_info.pDepthStencilState = &configInfo._depth_stencil_info;
-        pipeline_info.pDynamicState = nullptr; // optional
+        pipeline_info.pDynamicState = &configInfo._dynamic_state_info; // optional
 
         pipeline_info.layout = configInfo._pipeline_layout;
         pipeline_info.renderPass = configInfo._render_pass;
@@ -151,25 +152,21 @@ namespace cge {
     //
     // Default Pipeline Config
     //
-    PipelineConfigInfo
-    CGE_Pipeline::_default_pipeline_config_info(uint32_t width, uint32_t height) {
-        PipelineConfigInfo config {};
+    void 
+    CGE_Pipeline::_default_pipeline_config_info(PipelineConfigInfo &config) {
+        // PipelineConfigInfo config {};
 
         config._input_assembly_info.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
         config._input_assembly_info.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
         config._input_assembly_info.primitiveRestartEnable = VK_FALSE;
 
         /* Viewport Configuration */
-        config._viewport.x = 0.0F;
-        config._viewport.y = 0.0F;
-        config._viewport.width  = static_cast<float>(width);
-        config._viewport.height = static_cast<float>(height);
-        config._viewport.minDepth = 0.0F;
-        config._viewport.maxDepth = 1.0F;
-
-        /* Scissor Configuration */
-        config._scissor.offset = {0, 0};
-        config._scissor.extent = {width, height};
+        config._viewport_info.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
+        config._viewport_info.viewportCount = 1;
+        config._viewport_info.pViewports = nullptr;
+        config._viewport_info.scissorCount = 1;
+        config._viewport_info.pScissors = nullptr;
+        
 
         /* Rasterization Configuration */
         config._rasterization_info.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -229,7 +226,15 @@ namespace cge {
         config._depth_stencil_info.front = {};
         config._depth_stencil_info.back  = {};
 
-        return config;
+        config._dynamic_state_enables = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+        config._dynamic_state_info.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        config._dynamic_state_info.pDynamicStates = config._dynamic_state_enables.data();
+        config._dynamic_state_info.dynamicStateCount = 
+            static_cast<uint32_t>(config._dynamic_state_enables.size());
+        config._dynamic_state_info.flags = 0;
+        
+
+        return;
     }
 
 } /* end lve namespace */
