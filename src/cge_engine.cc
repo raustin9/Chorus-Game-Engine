@@ -1,3 +1,6 @@
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_PATTERN_ZERO_TO_ONE
+#include <glm/glm.hpp>
 #include "cge_engine.hh"
 #include "cge_model.hh"
 #include "cge_pipeline.hh"
@@ -13,6 +16,11 @@
 #include <array>
 
 namespace cge {
+    struct SimplePushConstantData {
+        glm::vec2 offset;
+        alignas(16) glm::vec3 color;
+    };
+
     //
     // CONSTRUCTOR
     //
@@ -49,13 +57,19 @@ namespace cge {
     //
     void
     CGE_Engine::_create_pipeline_layout() {
+        VkPushConstantRange push_constant_range{};
+        push_constant_range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+        push_constant_range.offset = 0;
+        push_constant_range.size = sizeof(SimplePushConstantData);
+        
+
         VkPipelineLayoutCreateInfo pipeline_layout_info {};
 
         pipeline_layout_info.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipeline_layout_info.setLayoutCount = 0;
         pipeline_layout_info.pSetLayouts = nullptr;
-        pipeline_layout_info.pushConstantRangeCount = 0;
-        pipeline_layout_info.pPushConstantRanges = nullptr;
+        pipeline_layout_info.pushConstantRangeCount = 1;
+        pipeline_layout_info.pPushConstantRanges = &push_constant_range;
 
         if (vkCreatePipelineLayout(
                 this->_device.device(), 
@@ -121,6 +135,9 @@ namespace cge {
 
     void
     CGE_Engine::_record_command_buffer(int image_index) {
+        static int frame = 0;
+        frame = (frame+1) % 1000;
+
         VkCommandBufferBeginInfo begin_info{};
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -137,7 +154,7 @@ namespace cge {
         render_pass_info.renderArea.extent = this->_swap_chain->getSwapChainExtent();
 
         std::array<VkClearValue, 2> clear_values{};
-        clear_values[0].color = {0.1F, 0.1F, 0.1F, 1.0F};
+        clear_values[0].color = {0.01F, 0.01F, 0.01F, 1.0F};
         clear_values[1].depthStencil = {1.0F, 0};
 
         render_pass_info.clearValueCount = static_cast<uint32_t>(clear_values.size());
@@ -158,7 +175,23 @@ namespace cge {
 
         this->_pipeline->_bind(this->_command_buffers[image_index]);
         this->_model->_bind(this->_command_buffers[image_index]);
-        this->_model->_draw(this->_command_buffers[image_index]);
+
+        for (int j = 0; j < 4; j++) {
+            SimplePushConstantData push{};
+            push.offset = {-0.5F + frame * 0.01F, -0.4F + j * 0.25F};
+            push.color = {0.0F, 0.0F, 0.2F + 0.2F * j};
+
+            vkCmdPushConstants(
+                this->_command_buffers[image_index], 
+                this->_pipeline_layout, 
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
+                0, 
+                sizeof(SimplePushConstantData), 
+                &push
+            );
+            this->_model->_draw(this->_command_buffers[image_index]);
+        }
+
         // vkCmdDraw(this->_command_buffers[i], 3, 1, 0, 0);
 
         vkCmdEndRenderPass(this->_command_buffers[image_index]);
