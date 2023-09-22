@@ -13,23 +13,11 @@ namespace cge {
 
     CGE_SwapChain::CGE_SwapChain(CGE_Device &deviceRef, VkExtent2D extent)
             : device{deviceRef}, windowExtent{extent} {
-//        createSwapChain();
-//        createImageViews();
-//        createRenderPass();
-//        createDepthResources();
-//        createFramebuffers();
-//        createSyncObjects();
         this->init();
     }
 
     CGE_SwapChain::CGE_SwapChain(CGE_Device &deviceRef, VkExtent2D extent, std::shared_ptr<CGE_SwapChain> previous)
             : device{deviceRef}, windowExtent{extent}, oldSwapChain(previous) {
-//        createSwapChain();
-//        createImageViews();
-//        createRenderPass();
-//        createDepthResources();
-//        createFramebuffers();
-//        createSyncObjects();
         this->init();
 
         // Clean up the old swap chain
