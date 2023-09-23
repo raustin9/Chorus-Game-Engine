@@ -1,6 +1,8 @@
+#include "cge_game_object.hh"
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_PATTERN_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 #include "cge_engine.hh"
 #include "cge_model.hh"
 #include "cge_pipeline.hh"
@@ -17,6 +19,7 @@
 
 namespace cge {
     struct SimplePushConstantData {
+        glm::mat2 transform{1.F};
         glm::vec2 offset;
         alignas(16) glm::vec3 color;
     };
@@ -25,7 +28,7 @@ namespace cge {
     // CONSTRUCTOR
     //
     CGE_Engine::CGE_Engine() {
-        this->_load_models();
+        this->_load_game_objects();
         this->_create_pipeline_layout();
         this->_recreate_swap_chain();
         this->_create_command_buffers();
@@ -103,14 +106,46 @@ namespace cge {
     }
 
     void
-    CGE_Engine::_load_models() {
+    CGE_Engine::_load_game_objects() {
         std::vector<CGE_Model::Vertex> vertices {
             {{0.0f, -0.5f}, {1.0F, 0.0F, 0.0F}},
             {{0.5f,  0.5f}, {0.0F, 1.0F, 0.0F}},
             {{-0.5f, 0.5f}, {0.0F, 0.0F, 1.0F}}
         };
 
-        this->_model = std::make_unique<CGE_Model>(this->_device, vertices);
+        auto model = std::make_shared<CGE_Model>(this->_device, vertices);
+        auto triangle = CGE_Game_Object::_create_game_object();
+        triangle.model = model;
+        triangle.color = {.1F, .8F, .1F};
+        triangle.transform2d.translation.x = .2F;
+        triangle.transform2d.scale = {2.f, .5f};
+        triangle.transform2d.rotation = .25F * glm::two_pi<float>();
+
+        _game_objects.push_back(std::move(triangle));
+    }
+
+    void
+    CGE_Engine::_render_game_objects(VkCommandBuffer command_buffer) {
+        this->_pipeline->_bind(command_buffer);
+
+        for (auto& obj: this->_game_objects) {
+            obj.transform2d.rotation = glm::mod(obj.transform2d.rotation + 0.01F, glm::two_pi<float>());
+            SimplePushConstantData push{};
+            push.offset = obj.transform2d.translation;
+            push.color = obj.color;
+            push.transform = obj.transform2d.mat2();
+
+            vkCmdPushConstants(
+                command_buffer, 
+                this->_pipeline_layout, 
+                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
+                0, 
+                sizeof(SimplePushConstantData), 
+                &push
+            );
+            obj.model->_bind(command_buffer);
+            obj.model->_draw(command_buffer);
+        }
     }
 
     //
@@ -135,9 +170,6 @@ namespace cge {
 
     void
     CGE_Engine::_record_command_buffer(int image_index) {
-        static int frame = 0;
-        frame = (frame+1) % 1000;
-
         VkCommandBufferBeginInfo begin_info{};
         begin_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -173,24 +205,26 @@ namespace cge {
         vkCmdSetViewport(this->_command_buffers[image_index], 0, 1, &viewport);
         vkCmdSetScissor(this->_command_buffers[image_index], 0, 1, &scissor);
 
-        this->_pipeline->_bind(this->_command_buffers[image_index]);
-        this->_model->_bind(this->_command_buffers[image_index]);
+        this->_render_game_objects(_command_buffers[image_index]);
 
-        for (int j = 0; j < 4; j++) {
-            SimplePushConstantData push{};
-            push.offset = {-0.5F + frame * 0.01F, -0.4F + j * 0.25F};
-            push.color = {0.0F, 0.0F, 0.2F + 0.2F * j};
-
-            vkCmdPushConstants(
-                this->_command_buffers[image_index], 
-                this->_pipeline_layout, 
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
-                0, 
-                sizeof(SimplePushConstantData), 
-                &push
-            );
-            this->_model->_draw(this->_command_buffers[image_index]);
-        }
+//        this->_pipeline->_bind(this->_command_buffers[image_index]);
+//        this->_model->_bind(this->_command_buffers[image_index]);
+//
+//        for (int j = 0; j < 4; j++) {
+//            SimplePushConstantData push{};
+//            push.offset = {-0.5F + frame * 0.01F, -0.4F + j * 0.25F};
+//            push.color = {0.0F, 0.0F, 0.2F + 0.2F * j};
+//
+//            vkCmdPushConstants(
+//                this->_command_buffers[image_index], 
+//                this->_pipeline_layout, 
+//                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
+//                0, 
+//                sizeof(SimplePushConstantData), 
+//                &push
+//            );
+//            this->_model->_draw(this->_command_buffers[image_index]);
+//        }
 
         // vkCmdDraw(this->_command_buffers[i], 3, 1, 0, 0);
 
