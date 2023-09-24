@@ -23,8 +23,8 @@ clean:
 %.spv: %
 	$(GLSLC) $< -o $@
 
-bin/vulkan_test: obj/main.o obj/cge_engine.o obj/cge_model.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_pipeline.o obj/cge_window.o
-	$(CC) $(CFLAGS) obj/main.o obj/cge_engine.o obj/cge_model.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_window.o obj/cge_pipeline.o  -o $@ $(LDFLAGS)
+bin/vulkan_test: obj/main.o obj/cge_engine.o obj/simple_render_system.o obj/cge_renderer.o obj/cge_model.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_pipeline.o obj/cge_window.o
+	$(CC) $(CFLAGS) obj/main.o obj/cge_engine.o obj/cge_renderer.o obj/simple_render_system.o obj/cge_model.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_window.o obj/cge_pipeline.o  -o $@ $(LDFLAGS)
 
 obj/main.o: src/main.cc 
 	$(CC) $(CFLAGS) -c $(INCLUDES) -o $@ $< $(LDFLAGS)
@@ -45,4 +45,10 @@ obj/cge_swap_chain.o: src/cge_swap_chain.cc
 	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
 
 obj/cge_model.o: src/cge_model.cc
+	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
+
+obj/cge_renderer.o: src/cge_renderer.cc
+	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
+
+obj/simple_render_system.o: src/simple_render_system.cc
 	$(CC) -c $(CFLAGS) $(INCLUDES) $< -o $@ $(LDFLAGS)
