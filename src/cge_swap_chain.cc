@@ -302,6 +302,7 @@ namespace cge {
     
     void CGE_SwapChain::createDepthResources() {
         VkFormat depthFormat = findDepthFormat();
+        this->swapChainDepthFormat = depthFormat;
         VkExtent2D swapChainExtent = getSwapChainExtent();
     
         depthImages.resize(imageCount());
