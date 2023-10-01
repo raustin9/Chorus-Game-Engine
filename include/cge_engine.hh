@@ -11,6 +11,9 @@
 #include "cge_renderer.hh"
 #include "cge_game_object.hh"
 
+
+
+
 namespace cge {
     class CGE_Engine {
         public:
@@ -23,6 +26,64 @@ namespace cge {
             void _run();
             static constexpr int WIDTH = 800;
             static constexpr int HEIGHT = 600;
+
+            std::unique_ptr<CGE_Model> createCubeModel(CGE_Device& device, glm::vec3 offset) {
+                std::vector<CGE_Model::Vertex> vertices{
+
+                    // left face (white)
+                    {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+                        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+                        {{-.5f, -.5f, .5f}, {.9f, .9f, .9f}},
+                        {{-.5f, -.5f, -.5f}, {.9f, .9f, .9f}},
+                        {{-.5f, .5f, -.5f}, {.9f, .9f, .9f}},
+                        {{-.5f, .5f, .5f}, {.9f, .9f, .9f}},
+
+                        // right face (yellow)
+                        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+                        {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+                        {{.5f, -.5f, .5f}, {.8f, .8f, .1f}},
+                        {{.5f, -.5f, -.5f}, {.8f, .8f, .1f}},
+                        {{.5f, .5f, -.5f}, {.8f, .8f, .1f}},
+                        {{.5f, .5f, .5f}, {.8f, .8f, .1f}},
+
+                        // top face (orange, remember y axis points down)
+                        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+                        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+                        {{-.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+                        {{-.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+                        {{.5f, -.5f, -.5f}, {.9f, .6f, .1f}},
+                        {{.5f, -.5f, .5f}, {.9f, .6f, .1f}},
+
+                        // bottom face (red)
+                        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+                        {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+                        {{-.5f, .5f, .5f}, {.8f, .1f, .1f}},
+                        {{-.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+                        {{.5f, .5f, -.5f}, {.8f, .1f, .1f}},
+                        {{.5f, .5f, .5f}, {.8f, .1f, .1f}},
+
+                        // nose face (blue)
+                        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+                        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+                        {{-.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+                        {{-.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+                        {{.5f, -.5f, 0.5f}, {.1f, .1f, .8f}},
+                        {{.5f, .5f, 0.5f}, {.1f, .1f, .8f}},
+
+                        // tail face (green)
+                        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+                        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+                        {{-.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+                        {{-.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+                        {{.5f, -.5f, -0.5f}, {.1f, .8f, .1f}},
+                        {{.5f, .5f, -0.5f}, {.1f, .8f, .1f}},
+
+                };
+                for (auto& v : vertices) {
+                    v.position += offset;
+                }
+                return std::make_unique<CGE_Model>(device, vertices);
+            }
 
         private:
             void _load_game_objects();

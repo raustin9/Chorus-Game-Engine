@@ -17,7 +17,7 @@ namespace cge {
     class CGE_Model {
         public:
             struct Vertex {
-                glm::vec2 position;
+                glm::vec3 position;
                 glm::vec3 color;
                 static std::vector<VkVertexInputBindingDescription> get_binding_description();
                 static std::vector<VkVertexInputAttributeDescription> get_attribute_description();
