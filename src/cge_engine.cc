@@ -4,6 +4,7 @@
 #include "cge_model.hh"
 #include "cge_pipeline.hh"
 #include "cge_swap_chain.hh"
+#include "cge_camera.hh"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_PATTERN_ZERO_TO_ONE
@@ -40,17 +41,31 @@ namespace cge {
     //
     void
     CGE_Engine::_run() {
+        SimpleRenderSystem simple_render_system {this->_device, this->_renderer.get_swap_chain_render_pass()};
+        CGE_Camera camera{};
+
         while (!this->_window._should_close()) {
-            SimpleRenderSystem simple_render_system {this->_device, this->_renderer.get_swap_chain_render_pass()};
             glfwPollEvents();
+            float aspect = this->_renderer.get_aspect_ratio();
+//            camera.set_orthographic_projection(
+//                    -aspect, aspect,
+//                    -1, 1,
+//                    -1, 1);
+            camera.set_perspective_projection(
+                glm::radians(50.f),
+                aspect,
+                0.1F,
+                10.F
+                );
+
             if (auto command_buffer = this->_renderer.begin_frame()) {
                 this->_renderer.begin_swap_chain_render_pass(command_buffer);
-                simple_render_system.render_game_objects(command_buffer, this->_game_objects);
+                simple_render_system.render_game_objects(command_buffer, this->_game_objects, camera);
                 this->_renderer.end_swap_chain_render_pass(command_buffer);
                 this->_renderer.end_frame();
             }
-            vkDeviceWaitIdle(this->_device.device());
         }
+        vkDeviceWaitIdle(this->_device.device());
         //this->_window._open_window();
     }
 
@@ -62,7 +77,7 @@ namespace cge {
 
         auto cube = CGE_Game_Object::_create_game_object();
         cube.model = model;
-        cube.transform.translation = {0.0f, 0.0f, 0.5f};
+        cube.transform.translation = {0.0f, 0.0f, 2.5f};
         cube.transform.scale = {0.5f, 0.5f, 0.5f};
 
         this->_game_objects.push_back(std::move(cube));

@@ -27,6 +27,7 @@ namespace cge {
             void end_frame();
 
             void begin_swap_chain_render_pass(VkCommandBuffer command_buffer);
+            float get_aspect_ratio() const { return this->_swap_chain->extentAspectRatio(); }
             void end_swap_chain_render_pass(VkCommandBuffer command_buffer);
 
             bool is_frame_started() const { return this->_is_frame_started; }

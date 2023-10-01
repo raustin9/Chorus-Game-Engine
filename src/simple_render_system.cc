@@ -71,7 +71,10 @@ namespace cge {
     }
 
     void
-    SimpleRenderSystem::render_game_objects(VkCommandBuffer command_buffer, std::vector<CGE_Game_Object>& game_objects) {
+    SimpleRenderSystem::render_game_objects(
+            VkCommandBuffer command_buffer, 
+            std::vector<CGE_Game_Object>& game_objects,
+            const CGE_Camera& camera) {
         this->_pipeline->_bind(command_buffer);
 
         for (auto& obj: game_objects) {
@@ -80,7 +83,7 @@ namespace cge {
             SimplePushConstantData push{};
             // push.offset = obj.transform.translation;
             push.color = obj.color;
-            push.transform = obj.transform.mat4();
+            push.transform = camera.get_projection_matrix() * obj.transform.mat4();
 
             vkCmdPushConstants(
                 command_buffer, 
