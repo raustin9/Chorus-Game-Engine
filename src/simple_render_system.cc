@@ -21,8 +21,8 @@
 
 namespace cge {
     struct SimplePushConstantData {
-        glm::mat2 transform{1.F};
-        glm::vec2 offset;
+        glm::mat4 transform{1.F};
+        // glm::vec2 offset;
         alignas(16) glm::vec3 color;
     };
 
@@ -75,11 +75,12 @@ namespace cge {
         this->_pipeline->_bind(command_buffer);
 
         for (auto& obj: game_objects) {
-            obj.transform2d.rotation = glm::mod(obj.transform2d.rotation + 0.01F, glm::two_pi<float>());
+            obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01F, glm::two_pi<float>());
+            obj.transform.rotation.x = glm::mod(obj.transform.rotation.y + 0.005F, glm::two_pi<float>());
             SimplePushConstantData push{};
-            push.offset = obj.transform2d.translation;
+            // push.offset = obj.transform.translation;
             push.color = obj.color;
-            push.transform = obj.transform2d.mat2();
+            push.transform = obj.transform.mat4();
 
             vkCmdPushConstants(
                 command_buffer, 
