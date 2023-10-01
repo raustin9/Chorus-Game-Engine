@@ -107,8 +107,8 @@ namespace cge {
         pipeline_config._pipeline_layout = this->_pipeline_layout;
         this->_pipeline = std::make_unique<CGE_Pipeline>(
                 this->_device,
-                "shaders/simple.vert.spv",
-                "shaders/simple.frag.spv",
+                "shaders/vert/simple.vert.spv",
+                "shaders/frag/simple.frag.spv",
                 pipeline_config
             );
     }
