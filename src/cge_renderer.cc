@@ -57,6 +57,7 @@ namespace cge {
     void 
     CGE_Renderer::_create_command_buffers() {
         this->_command_buffers.resize(CGE_SwapChain::MAX_FRAMES_IN_FLIGHT);
+
         VkCommandBufferAllocateInfo alloc_info{};
         alloc_info.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         alloc_info.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;

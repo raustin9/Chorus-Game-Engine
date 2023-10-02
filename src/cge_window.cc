@@ -61,8 +61,8 @@ namespace cge {
             exit(1);
             glfwTerminate();
         }
-        glfwSetWindowUserPointer(this->_window, this);
-        glfwSetFramebufferSizeCallback(this->_window, CGE_Window::_frame_buffer_resize_callback);
+        glfwSetWindowUserPointer(_window, this);
+        glfwSetFramebufferSizeCallback(this->_window, _frame_buffer_resize_callback);
     }
 
     //

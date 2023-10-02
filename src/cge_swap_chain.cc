@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <array>
 #include <cstdlib>
 #include <cstring>
@@ -410,12 +411,20 @@ namespace cge {
             return capabilities.currentExtent;
         } else {
             VkExtent2D actualExtent = windowExtent;
-            actualExtent.width = std::max(
+            actualExtent.width = std::clamp(
+                    actualExtent.width,
                     capabilities.minImageExtent.width,
-                    std::min(capabilities.maxImageExtent.width, actualExtent.width));
-            actualExtent.height = std::max(
+                    capabilities.maxImageExtent.width);
+            actualExtent.height = std::clamp(
+                    actualExtent.height,
                     capabilities.minImageExtent.height,
-                    std::min(capabilities.maxImageExtent.height, actualExtent.height));
+                    capabilities.maxImageExtent.height);
+//            actualExtent.width = std::max(
+//                    capabilities.minImageExtent.width,
+//                    std::min(capabilities.maxImageExtent.width, actualExtent.width));
+//            actualExtent.height = std::max(
+//                    capabilities.minImageExtent.height,
+//                    std::min(capabilities.maxImageExtent.height, actualExtent.height));
     
             return actualExtent;
         }
