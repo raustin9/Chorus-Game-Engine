@@ -43,6 +43,8 @@ namespace cge {
     CGE_Engine::_run() {
         SimpleRenderSystem simple_render_system {this->_device, this->_renderer.get_swap_chain_render_pass()};
         CGE_Camera camera{};
+        // camera.set_view_direction(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
+        camera.set_view_target(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
         while (!this->_window._should_close()) {
             glfwPollEvents();
