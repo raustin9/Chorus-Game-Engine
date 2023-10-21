@@ -20,6 +20,7 @@ namespace cge {
             void _reset_framebuffer_resized() { this->_frame_buffer_resized = false; }
             bool _was_window_resized() { return this->_frame_buffer_resized; }
             VkExtent2D _get_extent(); 
+            GLFWwindow* get_glfw_window() const { return _window; }
 
         private:
             static void _frame_buffer_resize_callback(GLFWwindow *window, int width, int height);
