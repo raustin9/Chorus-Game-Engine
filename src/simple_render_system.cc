@@ -77,13 +77,15 @@ namespace cge {
             const CGE_Camera& camera) {
         this->_pipeline->_bind(command_buffer);
 
+        auto projection_view = camera.get_projection_matrix() * camera.get_view_matrix();
+
         for (auto& obj: game_objects) {
             obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01F, glm::two_pi<float>());
             obj.transform.rotation.x = glm::mod(obj.transform.rotation.y + 0.005F, glm::two_pi<float>());
             SimplePushConstantData push{};
             // push.offset = obj.transform.translation;
             push.color = obj.color;
-            push.transform = camera.get_projection_matrix() * obj.transform.mat4();
+            push.transform = projection_view * obj.transform.mat4();
 
             vkCmdPushConstants(
                 command_buffer, 
