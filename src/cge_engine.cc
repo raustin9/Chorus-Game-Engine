@@ -90,29 +90,15 @@ namespace cge {
     void
     CGE_Engine::_load_game_objects() {
 
-        std::shared_ptr<CGE_Model> model = this->createCubeModel(this->_device, {0.0f, 0.0f, 0.0f});
+        std::shared_ptr<CGE_Model> model 
+            = CGE_Model::create_model_from_file(_device, "models/smooth_vase.obj");
 
-        auto cube = CGE_Game_Object::_create_game_object();
-        cube.model = model;
-        cube.transform.translation = {0.0f, 0.0f, 2.5f};
-        cube.transform.scale = {0.5f, 0.5f, 0.5f};
+        auto game_object = CGE_Game_Object::_create_game_object();
+        game_object.model = model;
+        game_object.transform.translation = {0.0f, 0.0f, 2.5f};
+        // game_object.transform.scale = {0.5f, 0.5f, 0.5f};
+        game_object.transform.scale = glm::vec3(3.f); 
 
-        this->_game_objects.push_back(std::move(cube));
-
-//        std::vector<CGE_Model::Vertex> vertices {
-//            {{0.0f, -0.5f}, {1.0F, 0.0F, 0.0F}},
-//            {{0.5f,  0.5f}, {0.0F, 1.0F, vertex0vertex.0F}},
-//            {{-0.5f, 0.5f}, {0.0F, 0.0F, 1.0F}}
-//        };
-//
-//        auto model = std::make_shared<CGE_Model>(this->_device, vertices);
-//        auto triangle = CGE_Game_Object::_create_game_object();
-//        triangle.model = model;
-//        triangle.color = {.1F, .8F, .1F};
-//        triangle.transform2d.translation.x = .2F;
-//        triangle.transform2d.scale = {2.f, .5f};
-//        triangle.transform2d.rotation = .25F * glm::two_pi<float>();
-//
-//        _game_objects.push_back(std::move(triangle));
+        this->_game_objects.push_back(std::move(game_object));
     }
 }

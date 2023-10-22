@@ -1,10 +1,11 @@
 CC=g++
 GLSLC=/usr/local/bin/glslc
 CFLAGS=-std=c++17
-INCLUDES=-Iinclude
+INCLUDES=-Iinclude -Ilib
 #LDFLAGS=-lglfw -lvulkan -ldl -lpthread -lX11 -lXxf86vm -lXrandr -lXi
 LDFLAGS=-lglfw -lvulkan -ldl -lX11 -lXxf86vm -lXrandr -lXi
 OBJS=obj/cge_engine.o obj/keyboard_movement_controller.o obj/cge_camera.o obj/simple_render_system.o obj/cge_renderer.o obj/cge_model.o obj/cge_device.o obj/cge_swap_chain.o obj/cge_pipeline.o obj/cge_window.o
+
 
 # Compile the shaders
 vertsources = $(shell find ./shaders/vert -type f -name "*.vert")
