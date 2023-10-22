@@ -101,7 +101,7 @@ namespace cge {
 
 //        std::vector<CGE_Model::Vertex> vertices {
 //            {{0.0f, -0.5f}, {1.0F, 0.0F, 0.0F}},
-//            {{0.5f,  0.5f}, {0.0F, 1.0F, 0.0F}},
+//            {{0.5f,  0.5f}, {0.0F, 1.0F, vertex0vertex.0F}},
 //            {{-0.5f, 0.5f}, {0.0F, 0.0F, 1.0F}}
 //        };
 //
