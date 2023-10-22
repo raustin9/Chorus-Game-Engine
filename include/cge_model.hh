@@ -11,21 +11,33 @@
 #include <vulkan/vulkan.h>
 #include <cstdint>
 #include <vector>
+#include <memory>
 
 
 namespace cge {
     class CGE_Model {
         public:
             struct Vertex {
-                glm::vec3 position;
-                glm::vec3 color;
+                glm::vec3 position{};
+                glm::vec3 color{};
+                glm::vec3 normals{};
+                glm::vec2 uv{};
+
                 static std::vector<VkVertexInputBindingDescription> get_binding_description();
                 static std::vector<VkVertexInputAttributeDescription> get_attribute_description();
+                bool operator==(const Vertex& other) const {
+                    return position == other.position
+                           && color == other.color
+                           && normals == other.normals
+                           && uv == other.uv;
+                }
             };
 
             struct Builder {
                 std::vector<Vertex> vertices{};
                 std::vector<uint32_t> indices{};
+
+                void load_models(const std::string& filepath);
             };
 
             CGE_Model(CGE_Device &device, const CGE_Model::Builder& builder);
@@ -33,6 +45,7 @@ namespace cge {
             CGE_Model(const CGE_Model&) = delete;
             CGE_Model &operator=(const CGE_Model&) = delete;
 
+            static std::unique_ptr<CGE_Model> create_model_from_file(CGE_Device& device, const std::string &file_path);
 
             void _bind(VkCommandBuffer command_buffer);
             void _draw(VkCommandBuffer command_buffer);
