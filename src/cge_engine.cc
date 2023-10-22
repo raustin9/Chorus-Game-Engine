@@ -64,10 +64,6 @@ namespace cge {
             camera.set_view_xyz(viewer_object.transform.translation, viewer_object.transform.rotation);
 
             float aspect = this->_renderer.get_aspect_ratio();
-//            camera.set_orthographic_projection(
-//                    -aspect, aspect,
-//                    -1, 1,
-//                    -1, 1);
             camera.set_perspective_projection(
                 glm::radians(50.f),
                 aspect,
@@ -83,7 +79,6 @@ namespace cge {
             }
         }
         vkDeviceWaitIdle(this->_device.device());
-        //this->_window._open_window();
     }
 
 
@@ -91,13 +86,13 @@ namespace cge {
     CGE_Engine::_load_game_objects() {
 
         std::shared_ptr<CGE_Model> model 
-            = CGE_Model::create_model_from_file(_device, "models/smooth_vase.obj");
+            = CGE_Model::create_model_from_file(_device, "models/colored_cube.obj");
 
         auto game_object = CGE_Game_Object::_create_game_object();
         game_object.model = model;
         game_object.transform.translation = {0.0f, 0.0f, 2.5f};
         // game_object.transform.scale = {0.5f, 0.5f, 0.5f};
-        game_object.transform.scale = glm::vec3(3.f); 
+        game_object.transform.scale = glm::vec3(1.f); 
 
         this->_game_objects.push_back(std::move(game_object));
     }

@@ -23,7 +23,8 @@ namespace cge {
     struct SimplePushConstantData {
         glm::mat4 transform{1.F};
         // glm::vec2 offset;
-        alignas(16) glm::vec3 color;
+        // alignas(16) glm::vec3 color;
+        glm::mat4 normalMatrix{1.f};
     };
 
     //
@@ -80,13 +81,10 @@ namespace cge {
         auto projection_view = camera.get_projection_matrix() * camera.get_view_matrix();
 
         for (auto& obj: game_objects) {
-//            obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01F, glm::two_pi<float>());
-//            obj.transform.rotation.x = glm::mod(obj.transform.rotation.y + 0.005F, glm::two_pi<float>());
-
             SimplePushConstantData push{};
-            // push.offset = obj.transform.translation;
-            push.color = obj.color;
-            push.transform = projection_view * obj.transform.mat4();
+            auto model_matrix = obj.transform.mat4();
+            push.transform = projection_view * model_matrix;
+            push.normalMatrix = obj.transform.normalMatrix();
 
             vkCmdPushConstants(
                 command_buffer, 
