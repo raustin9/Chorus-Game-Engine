@@ -20,7 +20,7 @@ run: bin/vulkan_test $(vertobjfiles) $(fragobjfiles)
 	./$<
 
 clean:
-	rm -f bin/* obj/* lib/* shaders/*/*.spv
+	rm -f bin/* obj/* shaders/*/*.spv
 
 # Shader targets
 %.spv: %
