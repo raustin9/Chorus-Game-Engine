@@ -3,6 +3,7 @@
 #define CGE_MODEL
 
 #include "cge_device.hh"
+#include "cge_buffer.hh"
 
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_PATTERN_ZERO_TO_ONE
@@ -55,12 +56,14 @@ namespace cge {
             void _create_index_buffers(const std::vector<uint32_t> &indices);
 
             CGE_Device &_device;
-            VkBuffer _vertex_buffer;
-            VkDeviceMemory _vertex_buffer_memory;
+//            VkBuffer _vertex_buffer;
+//            VkDeviceMemory _vertex_buffer_memory;
+            std::unique_ptr<CGE_Buffer> _vertex_buffer;
             uint32_t _vertex_count;
 
-            VkBuffer _index_buffer;
-            VkDeviceMemory _index_buffer_memory;
+//            VkBuffer _index_buffer;
+//            VkDeviceMemory _index_buffer_memory;
+            std::unique_ptr<CGE_Buffer> _index_buffer;
             uint32_t _index_count;
 
             bool _has_index_buffer = false;

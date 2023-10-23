@@ -9,6 +9,7 @@
 #include "cge_camera.hh"
 #include "cge_pipeline.hh"
 #include "cge_game_object.hh"
+#include "cge_frame_info.hh"
 
 namespace cge {
     class SimpleRenderSystem {
@@ -19,9 +20,8 @@ namespace cge {
             SimpleRenderSystem(const SimpleRenderSystem&) = delete;
             SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
             void render_game_objects(
-                    VkCommandBuffer command_buffer, 
-                    std::vector<CGE_Game_Object> &game_objects,
-                    const CGE_Camera& camera);
+                    FrameInfo &frame_info,
+                    std::vector<CGE_Game_Object> &game_objects);
             
         private:
             void _create_pipeline_layout();

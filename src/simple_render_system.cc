@@ -73,12 +73,11 @@ namespace cge {
 
     void
     SimpleRenderSystem::render_game_objects(
-            VkCommandBuffer command_buffer, 
-            std::vector<CGE_Game_Object>& game_objects,
-            const CGE_Camera& camera) {
-        this->_pipeline->_bind(command_buffer);
+            FrameInfo &frame_info,
+            std::vector<CGE_Game_Object>& game_objects) {
+        this->_pipeline->_bind(frame_info.command_buffer);
 
-        auto projection_view = camera.get_projection_matrix() * camera.get_view_matrix();
+        auto projection_view = frame_info.camera.get_projection_matrix() * frame_info.camera.get_view_matrix();
 
         for (auto& obj: game_objects) {
             SimplePushConstantData push{};
@@ -87,15 +86,15 @@ namespace cge {
             push.normalMatrix = obj.transform.normalMatrix();
 
             vkCmdPushConstants(
-                command_buffer, 
+                frame_info.command_buffer, 
                 this->_pipeline_layout, 
                 VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
                 0, 
                 sizeof(SimplePushConstantData), 
                 &push
             );
-            obj.model->_bind(command_buffer);
-            obj.model->_draw(command_buffer);
+            obj.model->_bind(frame_info.command_buffer);
+            obj.model->_draw(frame_info.command_buffer);
         }
     }
 

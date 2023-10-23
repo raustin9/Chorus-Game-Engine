@@ -35,14 +35,9 @@ namespace cge {
         this->_create_vertex_buffers(builder.vertices);
         this->_create_index_buffers(builder.indices);
     }
-    CGE_Model::~CGE_Model() {
-        vkDestroyBuffer(_device.device(), _vertex_buffer, nullptr);
-        vkFreeMemory(_device.device(), _vertex_buffer_memory, nullptr);
 
-        if (_has_index_buffer) {
-            vkDestroyBuffer(_device.device(), _index_buffer, nullptr);
-            vkFreeMemory(_device.device(), _index_buffer_memory, nullptr);
-        }
+    CGE_Model::~CGE_Model() {
+
     }
 
     void
@@ -54,38 +49,30 @@ namespace cge {
             return;
 
         VkDeviceSize buffer_size = sizeof(indices[0]) * _index_count;
-        VkBuffer staging_buffer;
-        VkDeviceMemory staging_buffer_memory;
+        uint32_t index_size = sizeof(indices[0]);
 
-        _device.createBuffer(
-                buffer_size, 
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-                staging_buffer,
-                staging_buffer_memory
-            );
+        CGE_Buffer staging_buffer {
+            _device,
+            index_size,
+            _index_count,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        };
 
-        void *data;
-        vkMapMemory(_device.device(), staging_buffer_memory, 0, buffer_size, 0, &data);
+        staging_buffer.map();
+        staging_buffer.write_to_buffer((void*)indices.data());
 
-        memcpy(data, indices.data(), 
-                static_cast<size_t>(buffer_size));
-        vkUnmapMemory(_device.device(), staging_buffer_memory);
+        _index_buffer = std::make_unique<CGE_Buffer>(
+            _device,
+            index_size,
+            _index_count,
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        );
+
         
-        _device.createBuffer(
-                buffer_size, 
-                VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                _index_buffer,
-                _index_buffer_memory
-            );
-
         // Move content of the staging buffer to the index buffer
-        _device.copyBuffer(staging_buffer, _index_buffer, buffer_size);
-
-        // Free the staging buffers after use
-        vkDestroyBuffer(_device.device(), staging_buffer, nullptr);
-        vkFreeMemory(_device.device(), staging_buffer_memory, nullptr);
+        _device.copyBuffer(staging_buffer.get_buffer(), _index_buffer->get_buffer(), buffer_size);
     }
 
 
@@ -110,40 +97,29 @@ namespace cge {
         
         VkDeviceSize buffer_size = sizeof(vertices[0]) * this->_vertex_count;
 
-        // Create the staging buffers
-        VkBuffer staging_buffer;
-        VkDeviceMemory staging_buffer_memory;
-        _device.createBuffer(
-                buffer_size, 
-                VK_BUFFER_USAGE_TRANSFER_SRC_BIT, 
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, 
-                staging_buffer,
-                staging_buffer_memory
-            );
+        uint32_t vertex_size = sizeof(vertices[0]);
 
+        CGE_Buffer staging_buffer{
+            _device,
+            vertex_size,
+            _vertex_count,
+            VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT
+        };
 
+        staging_buffer.map();
+        staging_buffer.write_to_buffer((void*)vertices.data());
 
-        void *data;
-        vkMapMemory(_device.device(), staging_buffer_memory, 0, buffer_size, 0, &data);
-
-        memcpy(data, vertices.data(), 
-                static_cast<size_t>(buffer_size));
-        vkUnmapMemory(_device.device(), staging_buffer_memory);
-        
-        this->_device.createBuffer(
-                buffer_size, 
-                VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
-                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, 
-                _vertex_buffer,
-                _vertex_buffer_memory
-                );
+        _vertex_buffer = std::make_unique<CGE_Buffer>(
+            _device,
+            vertex_size,
+            _vertex_count,
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, 
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+        );
 
         // Move content of the staging buffer to the index buffer
-        _device.copyBuffer(staging_buffer, _vertex_buffer, buffer_size);
-
-        // Free the staging buffers after use
-        vkDestroyBuffer(_device.device(), staging_buffer, nullptr);
-        vkFreeMemory(_device.device(), staging_buffer_memory, nullptr);
+        _device.copyBuffer(staging_buffer.get_buffer(), _vertex_buffer->get_buffer(), buffer_size);
     }
 
     void
@@ -158,12 +134,12 @@ namespace cge {
 
     void
     CGE_Model::_bind(VkCommandBuffer command_buffer) {
-        VkBuffer buffers[] = {this->_vertex_buffer};
+        VkBuffer buffers[] = {this->_vertex_buffer->get_buffer()};
         VkDeviceSize offsets[] = {0};
         vkCmdBindVertexBuffers(command_buffer, 0, 1, buffers, offsets);
 
         if (_has_index_buffer) {
-            vkCmdBindIndexBuffer(command_buffer, _index_buffer, 0, VK_INDEX_TYPE_UINT32);
+            vkCmdBindIndexBuffer(command_buffer, _index_buffer->get_buffer(), 0, VK_INDEX_TYPE_UINT32);
         }
     }
 
