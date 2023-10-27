@@ -94,6 +94,7 @@ namespace cge {
     CGE_Buffer::flush(VkDeviceSize size, VkDeviceSize offset) {
         VkMappedMemoryRange mapped_range = {};
         mapped_range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        mapped_range.memory = _memory;
         mapped_range.offset = offset;
         mapped_range.size = size;
         return vkFlushMappedMemoryRanges(_device.device(), 1, &mapped_range);

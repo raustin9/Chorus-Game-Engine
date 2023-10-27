@@ -28,8 +28,8 @@
 namespace cge {
 
     struct Global_Ubo {
-        alignas(16) glm::mat4 projectionView{1.f};
-        alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3(1.f, -3.f, -1.f));
+        glm::mat4 projectionView{1.f};
+        glm::vec3 lightDirection = glm::normalize(glm::vec3(1.f, -3.f, -1.f));
     };
 
     //
@@ -50,19 +50,28 @@ namespace cge {
     //
     void
     CGE_Engine::_run() {
-        auto min_offset_alignment = std::lcm(
-            _device.properties.limits.minUniformBufferOffsetAlignment,
-            _device.properties.limits.nonCoherentAtomSize);
+        std::vector<std::unique_ptr<CGE_Buffer>> ubo_buffers(CGE_SwapChain::MAX_FRAMES_IN_FLIGHT);
+        for (size_t i = 0; i < ubo_buffers.size(); i++) {
+            ubo_buffers[i] = std::make_unique<CGE_Buffer>(
+                _device,
+                sizeof(Global_Ubo),
+                1,
+                VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
+            );
 
-        CGE_Buffer global_ubo {
-            _device,
-            sizeof(Global_Ubo),
-            CGE_SwapChain::MAX_FRAMES_IN_FLIGHT,
-            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-            min_offset_alignment
-        };
-        global_ubo.map();
+            ubo_buffers[i]->map();
+        }
+
+//        CGE_Buffer global_ubo {
+//            _device,
+//            sizeof(Global_Ubo),
+//            CGE_SwapChain::MAX_FRAMES_IN_FLIGHT,
+//            VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+//            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+//            min_offset_alignment
+//        };
+//         global_ubo.map();
 
         SimpleRenderSystem simple_render_system {this->_device, this->_renderer.get_swap_chain_render_pass()};
         CGE_Camera camera{};
@@ -104,8 +113,8 @@ namespace cge {
                 // Update
                 Global_Ubo ubo{};
                 ubo.projectionView = camera.get_projection_matrix() * camera.get_view_matrix();
-                global_ubo.write_to_index(&ubo, frame_index);
-                global_ubo.flush_index(frame_index);
+                ubo_buffers[frame_index]->write_to_buffer(&ubo);
+                ubo_buffers[frame_index]->flush();
 
                 // Render
                 this->_renderer.begin_swap_chain_render_pass(command_buffer);
